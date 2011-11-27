@@ -7,7 +7,7 @@ from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
 
 from taggit.forms import TagField
-from taggit.models import TaggedItem, GenericTaggedItemBase
+from taggit.models import GenericTaggedItemBase
 from taggit.utils import require_instance_manager
 
 
@@ -38,7 +38,11 @@ class TaggableRel(ManyToManyRel):
 class TaggableManager(RelatedField):
     def __init__(self, verbose_name=_("Tags"),
         help_text=_("A comma-separated list of tags."), through=None, blank=False):
-        self.through = through or TaggedItem
+        if through:
+            self.through = through
+        else:
+            from taggit.module import TaggedItem
+            self.through = TaggedItem
         self.rel = TaggableRel()
         self.verbose_name = verbose_name
         self.help_text = help_text

@@ -156,5 +156,6 @@ class GenericTaggedItemBase(ItemBase):
 
 class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
     class Meta:
+        abstract = True # bleh; this is a hack since we don't actually use this class
         verbose_name = _("Tagged Item")
         verbose_name_plural = _("Tagged Items")
