@@ -41,7 +41,7 @@ class TaggableManager(RelatedField):
         if through:
             self.through = through
         else:
-            from taggit.module import TaggedItem
+            from taggit.models import TaggedItem
             self.through = TaggedItem
         self.rel = TaggableRel()
         self.verbose_name = verbose_name
