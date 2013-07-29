@@ -39,6 +39,10 @@ class TagBase(models.Model):
                     transaction.savepoint_commit(sid, **trans_kwargs)
                     return res
                 except IntegrityError:
+                    if i > 100:
+                        # No infinite loops, thanks. If there are more than 100 tags 
+                        # with the same "name" we have a problem
+                        raise
                     transaction.savepoint_rollback(sid, **trans_kwargs)
                     self.slug = self.slugify(self.name, i)
         else:
