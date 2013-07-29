@@ -17,7 +17,7 @@ class TagBase(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
-        if not self.pk and not self.slug:
+        if not self.slug:
             self.slug = self.slugify(self.name)
             if django.VERSION >= (1, 2):
                 from django.db import router
