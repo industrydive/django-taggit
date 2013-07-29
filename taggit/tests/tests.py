@@ -77,6 +77,7 @@ class TagModelTestCase(BaseTaggingTransactionTestCase):
         apple = self.food_model.objects.create(name="apple")
         yummy = self.tag_model.objects.create(name="yummy")
         apple.tags.add(yummy)
+        self.assert_tags_equal(apple.tags.all(), [yummy])
 
     def test_slugify(self):
         a = Article.objects.create(title="django-taggit 1.0 Released")
