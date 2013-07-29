@@ -170,12 +170,14 @@ class _TaggableManager(models.Manager):
                 # parameter was already a tag object
                 if t.name.lower() not in existing_tags_lower_str:
                     tag_objects_to_add.add(t)
+                    existing_tags_lower_str.add(t.name.lower())
             else:
                 # parameter was a string
                 if t.lower() not in existing_tags_lower_str:
                     # get tag object for string or create one if it's new
                     tag_obj, _ = self.through.tag_model().objects.get_or_create(name=t)
                     tag_objects_to_add.add(tag_obj)
+                    existing_tags_lower_str.add(tag_obj.name.lower())
 
         # add new tag objects to this model instance
         for tag in tag_objects_to_add:
