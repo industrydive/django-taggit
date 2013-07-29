@@ -225,8 +225,8 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
         guava = self.food_model.objects.create(name="guava")
 
         self.assertEqual(
-            map(lambda o: o.pk, self.food_model.objects.exclude(tags__name__in=["red"])),
-            [pear.pk, guava.pk],
+            list(sorted(map(lambda o: o.pk, self.food_model.objects.exclude(tags__name__in=["red"])))),
+            list(sorted([pear.pk, guava.pk])),
         )
 
     def test_similarity_by_tag(self):
@@ -248,6 +248,14 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
         apple = self.food_model.objects.create(name="apple")
         apple.tags.add("juicy", "juicy")
         self.assert_tags_equal(apple.tags.all(), ['juicy'])
+
+    def test_tag_case(self):
+        apple = self.food_model.objects.create(name="apple")
+        apple.tags.add("juicy", "Ripe")
+        apple.tags.add("RIPE", "Ripe")
+        apple.tags.add("Juicy")
+        self.assert_tags_equal(apple.tags.all(), ['juicy','Ripe'])
+
 
     def test_query_traverse(self):
         spot = self.pet_model.objects.create(name='Spot')
