@@ -158,23 +158,27 @@ class _TaggableManager(models.Manager):
 
     @require_instance_manager
     def add(self, *tags):
-        str_tags = set([
-            t
-            for t in tags
-            if not isinstance(t, self.through.tag_model())
-        ])
-        tag_objs = set(tags) - str_tags
-        # If str_tags has 0 elements Django actually optimizes that to not do a
-        # query.  Malcolm is very smart.
-        existing = self.through.tag_model().objects.filter(
-            name__in=str_tags
-        )
-        tag_objs.update(existing)
+        """ tags is either a list of strings representing a tag or tag objects or a mix """
 
-        for new_tag in str_tags - set(t.name for t in existing):
-            tag_objs.add(self.through.tag_model().objects.create(name=new_tag))
+        # tags that are *already* linked to this model. add() with one of these does nothing
+        existing_tags = self.through.objects.filter(**self._lookup_kwargs())
+        existing_tags_lower_str = set(t.tag.name.lower() for t in existing_tags)
 
-        for tag in tag_objs:
+        tag_objects_to_add = set()
+        for t in tags:
+            if isinstance(t, self.through.tag_model()):
+                # parameter was already a tag object
+                if t.name.lower() not in existing_tags_lower_str:
+                    tag_objects_to_add.add(t)
+            else:
+                # parameter was a string
+                if t.lower() not in existing_tags_lower_str:
+                    # get tag object for string or create one if it's new
+                    tag_obj, _ = self.through.tag_model().objects.get_or_create(name=t)
+                    tag_objects_to_add.add(tag_obj)
+
+        # add new tag objects to this model instance
+        for tag in tag_objects_to_add:
             self.through.objects.get_or_create(tag=tag, **self._lookup_kwargs())
 
     @require_instance_manager
